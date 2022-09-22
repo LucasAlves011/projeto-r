@@ -1,12 +1,15 @@
 
 ## Limpeza de Data Set
-vacinados2021Copia <- vacinados2021
+vacinados <- rbind(vacinados20211,vacinados2022)
+
+vacinadosOrigial <- rbind(vacinados20211,vacinados2022)
+#install.packages("tidyverse")
 
 # Removendo Colunas
-vacinados2021$categoria = NULL
-vacinados2021$faixa_etaria = NULL
-vacinados2021$lote = NULL
-vacinados2021$sistema_origem = NULL
+vacinados$categoria = NULL
+vacinados$faixa_etaria = NULL
+vacinados$lote = NULL
+vacinados$sistema_origem = NULL
 
 # Função grupoEtario 
 grupo_Etario= function (idade ) {
@@ -20,33 +23,42 @@ grupo_Etario= function (idade ) {
 }
 
 # Criando coluna vazio de Grupo Etario
-vacinados2021["grupoEtario"] <-c("")
+vacinados["grupoEtario"] <-c("")
 
 # Preenchendo coluna GrupoEtario
-vacinados2021$grupoEtario <- sapply(vacinados2021$idade,grupo_Etario)
+vacinados$grupoEtario <- sapply(vacinados$idade,grupo_Etario)
 
 
 ## Removendo '1' e '2' da coluna $Sexo
-a <- filter(vacinados2021,vacinados2021$sexo != '1' & vacinados2021$sexo != '2')
+a <- filter(vacinados,vacinados$sexo != '1' & vacinados$sexo != '2')
 #Filtrando os is.na
-b <- filter(vacinados2021, is.na(sexo))
+b <- filter(vacinados, is.na(sexo))
 #Concatenando de volta para 'a'
 a <- rbind(a,b)
 #Jogando vacinados para data set principal
-vacinados2021 <- a
+vacinados <- a
 
 #Limpando coluna racca_cor , Indigena estava duplicado
-vacinados2021$raca_cor <- replace(vacinados2021$raca_cor, vacinados2021$raca_cor == "ÍNDIGENA","INDÍGENA")
+vacinados$raca_cor <- replace(vacinados$raca_cor, vacinados$raca_cor == "ÍNDIGENA","INDÍGENA")
  
 #Transformando em Factor 
-vacinados2021$raca_cor <- factor(vacinados2021$raca_cor)
-vacinados2021$sexo <- factor(vacinados2021$sexo)
-vacinados2021$vacina_fabricante <- factor(vacinados2021$vacina_fabricante)
+vacinados$raca_cor <- factor(vacinados$raca_cor)
+vacinados$sexo <- factor(vacinados$sexo)
+vacinados$vacina_fabricante <- factor(vacinados$vacina_fabricante)
 
 
 #Removendo Na's
-vacinados2021 <- filter (vacinados2021,!is.na(idade))
-vacinados2021 <- filter (vacinados2021,!is.na(cnes))
+vacinados <- filter (vacinados,!is.na(idade))
+vacinados <- filter (vacinados,!is.na(cnes))
 
 #update da dataset Copia
-vacinados2021Copia <- vacinados2021
+vacinados2021Copia <- vacinados
+
+
+
+
+
+
+
+
+

@@ -54,7 +54,9 @@ rm(vacinados2021,vacinados2022)
 ```
 
 ### Limpeza de colunas
-Para realizar a limpeza desse enorme arquivo, retiramos as colunas ,categoria, faixa_etaria, lote e sistema_origem, cujo consideramos desnecessária para análise exploratória.
+
+
+Para realizar a limpeza desse enorme arquivo, retiramos as colunas , **categoria, faixa_etaria, lote e sistema_origem**, cujo consideramos desnecessária para análise exploratória.
 
 ```{r echo=FALSE}
 ## Tabela sem as colunas acima , para exemplificar
@@ -177,7 +179,7 @@ vacinados <- filter (vacinados,!is.na(cnes))
 #update da dataset Copia
 vacinadosCopia <- vacinados
 
-datatable(vacinados[1:2,])
+datatable(vacinados[10:15,])
 
 
 ```
