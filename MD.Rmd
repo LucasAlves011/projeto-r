@@ -7,6 +7,24 @@ output: html_document
 
 # Análise de Vacinação da Campanha de Vacinação da Covid-19 da região Metropolitina do Recife(2021-2022){.tabset}
 
+<<<<<<< HEAD
 ##   Introdução
 
 ## Pacotes{.tabset}
+=======
+# Análise sobre a campanha de vacinação da Covid-19 na Região Metropolitana do Recife {.tabset}
+
+## Introdução {.tabset} 
+### O começo do **Caos**
+Em 31 de dezembro de 2019, a Organização Mundial da Saúde (OMS) foi alertada sobre vários casos de pneumonia na cidade de Wuhan, província de Hubei, na República Popular da China. Tratava-se de uma nova cepa (tipo) de coronavírus que não havia sido identificada antes em seres humanos. 
+
+Uma semana depois foi confirmado o novo tipo de coronavírus e associado como a causa dessa *pneumonia*. 
+
+Em 30 de janeiro de 2020 foi declarada uma emergência de saúde global pela Organização Mundial da Saúde, e dois meses depois, a OMS já tinha conhecimento de mais de meio milhão de casos ao redor do mundo e um pouco mais de 26 mil mortes. O mundo estava conhendo um vírus extremamente contagioso e com um uma taxa de letalidade bem maior em relação a vírus **parecidos**.
+
+No dia 11 de Março de 2020 a OMS elevou o status de surto para **pandemia**.
+
+### Vacina
+
+## TEste
+>>>>>>> 8bc1553897c908458b942a506670340bf2f49a2e
