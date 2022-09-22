@@ -6,7 +6,7 @@ output: html_document
 ---
 
 
-```{r echo=FALSE, warning=T}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(readr)
 library(dplyr)
 library(DT)
@@ -90,7 +90,7 @@ vacinados2021$grupoEtario <- sapply(vacinados2021$idade,grupo_Etario)
 #vacinados2021$grupoEtario <- factor(vacinados2021$grupoEtario)
 
 #Printando datatable
-datatable(vacinados2021[1,10])
+datatable(vacinados2021[1:10,c(1,10)])
 
 ```
 
@@ -167,9 +167,6 @@ vacinados2021$sexo <- factor(vacinados2021$sexo)
 vacinados2021$vacina_fabricante <- factor(vacinados2021$vacina_fabricante)
 vacinados2021$grupoEtario <- unlist(vacinados2021$grupoEtario)
 vacinados2021$grupoEtario <- factor(vacinados2021$grupoEtario)
-#install.packages("wordcloud")
-#install.packages("RColorBrewer")
-#install.packages("tm")
 
 #Removendo Na's
 vacinados2021 <- filter (vacinados2021,!is.na(idade))
