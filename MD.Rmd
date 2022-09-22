@@ -6,6 +6,13 @@ output: html_document
 ---
 
 
+```{r echo=FALSE, warning=T}
+library(readr)
+library(dplyr)
+library(DT)
+library(knitr)
+library(ggplot2)
+```
 
 # Análise sobre a campanha de vacinação da Covid-19 na Região Metropolitana do Recife {.tabset}
 
@@ -19,9 +26,7 @@ Em 30 de janeiro de 2020 foi declarada uma emergência de saúde global pela Org
 
 No dia 11 de Março de 2020 a OMS elevou o status de surto para **pandemia**.
 
-### Vacina
-
-
+Em Pernambuco, a campanha de vacinação contra a Covid-19 foi iniciada em 18 de janeiro de 2021, mesmo dia em que a primeira remessa de doses dos imunizantes foi enviada ao Estado pelo Ministério da Saúde. A Secretaria Estadual de Saúde (SES-PE) tem organizado a vacinação de acordo com a disponibilidade de doses encaminhadas pelo Governo Federal, responsável pela aquisição e envio para os Estados. Com o inicio da campanha de vacinação foi selecionado grupos prioritários para atender os mais necessitados de primeira instância. Pensando nisso este projeto tem como o intuito  mostrar uma análise dessa campanha e relacionar esses dois anos de vacinação.É possível destacar questões como: Ao longo do ano de 2021 e 2022, como foi distribuída essa vacinação? Quais foram os grupos mais vacinados? Quantos postos foram utilizados e em quais regiões foram mais vacinadas? Quais doses a população de Recife tomou mais?
 
 ## Preparação dos dados {.tabset}
 
@@ -35,9 +40,170 @@ Recife como a segurança pública, mobilidade urbana, cultura, finanças e diver
 [![](http://dados.recife.pe.gov.br/base/images/logo-dados-recife.png)](http://dados.recife.pe.gov.br/)
 
 
-## Teste
+### Explicação dos dados    
+  Os dados originais promovem o perfil das pessoas que foram vacinas desde o começo da campanha de vacinação de 2021 e 2022, vinha com a inteção de explorar a estatistica das pessoas que tomaram a vacina, os dados originais somado anos de 2021 e 2022 , tornasse em torno de 870Mb, contava com 14 colunas e um pouco mais de 4 milhões de linhas. Onde as colunas são nomeadas, da seguinte forma: **id, faixa_etaria, idade, sexo, raca_cor, municipio, grupo, categoria, lote, vacina_fabricante, descricao_dose, cnes, sistema_origem, data_vacinacao**.
+  
 
-Em Pernambuco, a campanha de vacinação contra a Covid-19 foi iniciada em 18 de janeiro de 2021, mesmo dia em que a primeira remessa de doses dos imunizantes foi enviada ao Estado pelo Ministério da Saúde. A Secretaria Estadual de Saúde (SES-PE) tem organizado a vacinação de acordo com a disponibilidade de doses encaminhadas pelo Governo Federal, responsável pela aquisição e envio para os Estados. Com o inicio da campanha de vacinação foi selecionado grupos prioritários para atender os mais necessitados de primeira instância. Pensando nisso este projeto tem como o intuito  mostrar uma análise dessa campanha e relacionar esses dois anos de vacinação.É possível destacar questões como: Ao longo do ano de 2021 e 2022, como foi distribuída essa vacinação? Quais foram os grupos mais vacinados? Quantos postos foram utilizados e em quais regiões foram mais vacinadas? Quais doses a população de Recife tomou mais?
+```{r echo=FALSE}
+# Jogar tabela de vacinados para exemplicar as colunas originais
+vacinados2021<- read.csv("vacinados2021.csv",sep = ";",header = T)
+datatable(vacinados2021[1:3,])
+
+```
+
+### Limpeza de colunas
+Para realizar a limpeza desse enorme arquivo, retiramos as colunas ,categoria, faixa_etaria, lote e sistema_origem, cujo consideramos desnecessária para análise exploratória.
+
+```{r echo=FALSE}
+## Tabela sem as colunas acima , para exemplificar
+vacinados2021$categoria = NULL
+vacinados2021$faixa_etaria = NULL
+vacinados2021$lote = NULL
+vacinados2021$sistema_origem = NULL
+datatable(vacinados2021[1:2,])
+```
+
+### Criação de Coluna e Factor
+
+Foi criada a coluna **grupoEtario** para separar as pessoas em factor, poderiamos ter usado a antiga coluna **faixa_etaria** mas ela era muito diversa e queriamos minimizar as categorias para não expandir desnecessariamente.
+
+```{r warning=T, echo=FALSE}
+
+## Coluna grupo etario
+
+# Função grupoEtario 
+grupo_Etario= function (idade ) {
+  
+  if(is.na(idade)){ return(NULL)}
+  else if(idade>=0 & idade<12){ return ("CRIANÇA")}
+  else if(idade>=13 & idade<=17){return ("ADOLESCENTE")}
+  else if(idade>=18 & idade<=39){return  ("JOVEM ADULTO")}
+  else if(idade>=40 & idade<=65){return ("MEIA IDADE")}
+  else{return ("IDOSO")}
+}
+
+# Criando coluna vazio de Grupo Etario
+vacinados2021["grupoEtario"] <-c("")
+
+# Preenchendo coluna GrupoEtario
+vacinados2021$grupoEtario <- sapply(vacinados2021$idade,grupo_Etario)
+#vacinados2021$grupoEtario <- factor(vacinados2021$grupoEtario)
+
+#Printando datatable
+datatable(vacinados2021[1,10])
+
+```
+
+Transformamos as colunas **Sexo, raca_cor e vacina_fabricante** em factors e fizemos algumas limpezas para garantir a coerência dos dados.
+```{r results='hide'}
+vacinados2021$raca_cor <- factor(vacinados2021$raca_cor)
+vacinados2021$sexo <- factor(vacinados2021$sexo)
+vacinados2021$vacina_fabricante <- factor(vacinados2021$vacina_fabricante)
+#Removendo Na's
+vacinados2021 <- filter (vacinados2021,!is.na(idade))
+vacinados2021 <- filter (vacinados2021,!is.na(cnes))
+
+## Removendo '1' e '2' da coluna $Sexo
+a <- filter(vacinados2021,vacinados2021$sexo != '1' & vacinados2021$sexo != '2')
+#Filtrando os is.na
+b <- filter(vacinados2021, is.na(sexo))
+#Concatenando de volta para 'a'
+a <- rbind(a,b)
+#Jogando vacinados para data set principal
+vacinados2021 <- a
+
+#Limpando coluna racca_cor , Indigena estava duplicado
+vacinados2021$raca_cor <- replace(vacinados2021$raca_cor, vacinados2021$raca_cor == "ÍNDIGENA","INDÍGENA")
+ 
+
+```
+
+### Tabela limpa e explicação detalhada
+```{r echo=FALSE}
+## Tabela limpa e exemplo
+
+## Limpeza de Data Set
+vacinados2021Copia <- vacinados2021
+ 
+# Removendo Colunas
+vacinados2021$categoria = NULL
+vacinados2021$faixa_etaria = NULL
+vacinados2021$lote = NULL
+vacinados2021$sistema_origem = NULL
+
+# Função grupoEtario 
+grupo_Etario= function (idade ) {
+  
+  if(is.na(idade)){ return(NULL)}
+  else if(idade>=0 & idade<12){ return ("CRIANÇA")}
+  else if(idade>=13 & idade<=17){return ("ADOLESCENTE")}
+  else if(idade>=18 & idade<=39){return  ("JOVEM ADULTO")}
+  else if(idade>=40 & idade<=65){return ("MEIA IDADE")}
+  else{return ("IDOSO")}
+}
+
+# Criando coluna vazio de Grupo Etario
+vacinados2021["grupoEtario"] <-c("")
+
+# Preenchendo coluna GrupoEtario
+vacinados2021$grupoEtario <- sapply(vacinados2021$idade,grupo_Etario)
+
+
+## Removendo '1' e '2' da coluna $Sexo
+a <- filter(vacinados2021,vacinados2021$sexo != '1' & vacinados2021$sexo != '2')
+#Filtrando os is.na
+b <- filter(vacinados2021, is.na(sexo))
+#Concatenando de volta para 'a'
+a <- rbind(a,b)
+#Jogando vacinados para data set principal
+vacinados2021 <- a
+
+#Limpando coluna racca_cor , Indigena estava duplicado
+vacinados2021$raca_cor <- replace(vacinados2021$raca_cor, vacinados2021$raca_cor == "ÍNDIGENA","INDÍGENA")
+ 
+#Transformando em Factor 
+vacinados2021$raca_cor <- factor(vacinados2021$raca_cor)
+vacinados2021$sexo <- factor(vacinados2021$sexo)
+vacinados2021$vacina_fabricante <- factor(vacinados2021$vacina_fabricante)
+vacinados2021$grupoEtario <- unlist(vacinados2021$grupoEtario)
+vacinados2021$grupoEtario <- factor(vacinados2021$grupoEtario)
+#install.packages("wordcloud")
+#install.packages("RColorBrewer")
+#install.packages("tm")
+
+#Removendo Na's
+vacinados2021 <- filter (vacinados2021,!is.na(idade))
+vacinados2021 <- filter (vacinados2021,!is.na(cnes))
+
+#update da dataset Copia
+vacinados2021Copia <- vacinados2021
+
+datatable(vacinados2021[1:2,])
+
+
+```
+Explicação de Cada Coluna
+
+- idade -> Não usamos propriamente a idade, mas foi referenciada para criar a **Coluna grupoEtario**
+
+- descricao_dose -> Numero que determina a dose que foi aplicada ao usuario, que vai de 1 à 3.
+
+- cnes-> Sigla significa "Cadastro Nacional de Estabelecimentos de Saúde", retorna o local de vacinação.
+
+- grupoEtario -> Coluna criada para definir o grupo em que se encaixa o perfil da pessoa(Criança,Adolescente,Jovem Adulto,Meia-Idade e Idoso)
+
+- data_vacinacao -> Data em que foi aplicada a vacina, utilizamos bastante esse dado para impulsionar o problema que queremos destacar.
+
+
 
 ## Pacotes Requeridos
+
+```{r echo=T,}
+
+library(readr)
+library(dplyr)
+library(DT)
+library(knitr)
+library(ggplot2)
+```
 
