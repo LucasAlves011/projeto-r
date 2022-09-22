@@ -43,6 +43,12 @@ vacinados2021$raca_cor <- factor(vacinados2021$raca_cor)
 vacinados2021$sexo <- factor(vacinados2021$sexo)
 vacinados2021$vacina_fabricante <- factor(vacinados2021$vacina_fabricante)
 
+x <- unlist(vacinados2021$grupoEtario)
+vacinados2021$grupoEtario <-x
+vacinados2021$grupoEtario <- factor(vacinados2021$grupoEtario)
+#install.packages("wordcloud")
+#install.packages("RColorBrewer")
+#install.packages("tm")
 
 #Removendo Na's
 vacinados2021 <- filter (vacinados2021,!is.na(idade))
@@ -50,3 +56,5 @@ vacinados2021 <- filter (vacinados2021,!is.na(cnes))
 
 #update da dataset Copia
 vacinados2021Copia <- vacinados2021
+
+
