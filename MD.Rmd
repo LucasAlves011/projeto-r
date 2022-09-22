@@ -5,9 +5,7 @@ date: "21/09/2022"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 # Análise sobre a campanha de vacinação da Covid-19 na Região Metropolitana do Recife {.tabset}
 
@@ -24,6 +22,7 @@ No dia 11 de Março de 2020 a OMS elevou o status de surto para **pandemia**.
 ### Vacina
 
 
+
 ## Preparação dos dados {.tabset}
 
 ### Origem dos dados
@@ -37,3 +36,8 @@ Recife como a segurança pública, mobilidade urbana, cultura, finanças e diver
 
 
 ## Teste
+
+Em Pernambuco, a campanha de vacinação contra a Covid-19 foi iniciada em 18 de janeiro de 2021, mesmo dia em que a primeira remessa de doses dos imunizantes foi enviada ao Estado pelo Ministério da Saúde. A Secretaria Estadual de Saúde (SES-PE) tem organizado a vacinação de acordo com a disponibilidade de doses encaminhadas pelo Governo Federal, responsável pela aquisição e envio para os Estados. Com o inicio da campanha de vacinação foi selecionado grupos prioritários para atender os mais necessitados de primeira instância. Pensando nisso este projeto tem como o intuito  mostrar uma análise dessa campanha e relacionar esses dois anos de vacinação.É possível destacar questões como: Ao longo do ano de 2021 e 2022, como foi distribuída essa vacinação? Quais foram os grupos mais vacinados? Quantos postos foram utilizados e em quais regiões foram mais vacinadas? Quais doses a população de Recife tomou mais?
+
+## Pacotes Requeridos
+
