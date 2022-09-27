@@ -1,8 +1,12 @@
 
-## Limpeza de Data Set
-vacinados <- rbind(vacinados20211,vacinados2022)
 
-vacinadosOrigial <- rbind(vacinados20211,vacinados2022)
+vacinados2021 <- read_delim("vacinados2021.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
+vacinados2022 <- read_delim("vacinados2022.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
+
+## Limpeza de Data Set
+vacinados <- rbind(vacinados2021,vacinados2022)
+
+vacinadosOrigial <- rbind(vacinados2021,vacinados2022)
 #install.packages("tidyverse")
 
 # Removendo Colunas
@@ -52,7 +56,7 @@ vacinados <- filter (vacinados,!is.na(idade))
 vacinados <- filter (vacinados,!is.na(cnes))
 
 #update da dataset Copia
-vacinados2021Copia <- vacinados
+vacinadosCopia <- vacinados
 
 
 
