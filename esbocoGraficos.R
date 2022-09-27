@@ -62,14 +62,60 @@ fig
 
 ####################################################################################################
 
+v2021 <- vacinados %>% filter(vacinados$data_vacinacao > '2021-01-01' & vacinados$data_vacinacao < '2022-01-01')
+v2022 <- vacinados %>% filter(vacinados$data_vacinacao > '2022-01-01' & vacinados$data_vacinacao < '2023-01-01')
+
+a <- v2021
+a$grupo <- replace(v2021$grupo, v2021$grupo == "TRABALHADORES DE TRANSPORTE AÉREO","TRABALHADORES DE TRANSPORTE") 
+a$grupo <- replace(a$grupo, a$grupo == "TRABALHADORES DE TRANSPORTE COLETIVO RODOVIÁRIO","TRABALHADORES DE TRANSPORTE") 
+a$grupo <- replace(a$grupo, a$grupo == "TRABALHADORES DE TRANSPORTE METROVIÁRIO E FERROVIÁRIO","TRABALHADORES DE TRANSPORTE") 
+a$grupo <- replace(a$grupo, a$grupo == "CAMINHONEIROS","TRABALHADORES DE TRANSPORTE") 
+a$grupo <- replace(a$grupo, a$grupo == "TRABALHADORES DE TRANSPORTE AQUAVIÁRIO","TRABALHADORES DE TRANSPORTE") 
+a$grupo <- replace(a$grupo, a$grupo == "GESTANTES E PUÉRPERAS NÃO RESIDENTES EM RECIFE","GESTANTES E PUÉRPERAS") 
+
+a1 <- v2022
+a1$grupo <- replace(v2022$grupo, v2022$grupo == "TRABALHADORES DE TRANSPORTE AÉREO","TRABALHADORES DE TRANSPORTE") 
+a1$grupo <- replace(a1$grupo, a1$grupo == "TRABALHADORES DE TRANSPORTE COLETIVO RODOVIÁRIO","TRABALHADORES DE TRANSPORTE") 
+a1$grupo <- replace(a1$grupo, a1$grupo == "TRABALHADORES DE TRANSPORTE METROVIÁRIO E FERROVIÁRIO","TRABALHADORES DE TRANSPORTE") 
+a1$grupo <- replace(a1$grupo, a1$grupo == "CAMINHONEIROS","TRABALHADORES DE TRANSPORTE") 
+a1$grupo <- replace(a1$grupo, a1$grupo == "TRABALHADORES DE TRANSPORTE AQUAVIÁRIO","TRABALHADORES DE TRANSPORTE") 
+a1$grupo <- replace(a1$grupo, a1$grupo == "GESTANTES E PUÉRPERAS NÃO RESIDENTES EM RECIFE","GESTANTES E PUÉRPERAS") 
+
+b <- a %>% group_by(grupo) %>% summarise(repetido = n()) %>% arrange(repetido) 
+b1 <- a1 %>% group_by(grupo) %>% summarise(repetido = n()) %>% arrange(repetido) 
+
+b[20,] <- NA # PUBLICO GERAL
+b[1,] <- NA # CRIANÇA 6 A 11
+b[17,] <- NA # PUBLICO GERAL -18 ANOS
+
+b1[22,] <- NA # PUBLICO GERAL
+b1[19,] <- NA # PUBLICO GERAL -18
+b1[14,] <- NA #CRIANÇA 3 A 4
+b1[20,] <- NA # CRIANÇA 5 A 11
+
+fig <- plot_ly()
+fig <- fig %>% add_pie(data = b, labels = ~b$grupo, values = ~b$repetido,
+                       name = "2021", domain = list(row = 0, column = 0),hole = 0.6)
+fig <- fig %>% add_pie(data = b1, labels = ~b1$grupo, values = ~b1$repetido,
+                       name = "2022", domain = list(row = 0, column = 1),hole = 0.6)
+fig <- fig %>% layout(title = "Grupos prioritários", showlegend = F, 
+                      grid=list(rows=2, columns=2),
+                      xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = F),
+                      yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = F) )
+fig
 
 
 
 
-#copyd2022 <- d2022Ordenado
-#as.character( copyd2022$data_vacinacao)
-#copyd2022$data_vacinacao <- as.POSIXct(mapply(diminuir, d2022Ordenado$data_vacinacao),origin = origin)
-#wday("2020-04-15")
+
+
+
+
+
+
+
+
+
 
 
 
