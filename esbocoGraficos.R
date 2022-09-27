@@ -1,3 +1,5 @@
+# GRÁFICO NUMERO 1
+
 vacinados2021 <- read_delim("vacinados2021.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
 vacinados2022 <- read_delim("vacinados2022.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
 vacinados <- rbind(vacinados2021,vacinados2022)
@@ -19,12 +21,31 @@ d2022Ordenado <-d2022[order(d2022$data_vacinacao),]
 rm(d2021,d2022)
 
 ## GRÁFICO DE PESSOAS VACINADAS EM FUNÇÃO DO TEMPO NO ANO DE 2021 
-fig <- plot_ly(d2021Ordenado,x=~d2021Ordenado$data_vacinacao,y=~d2021Ordenado$repetido,type = "scatter" , mode= 'lines+markes') %>% 
-layout(title = 'Vacinação ao longo do ano de 2021', plot_bgcolor = "#ffffff", xaxis = list(title = "Tempo"), yaxis = list (title = "Pessoas vacinadas"))%>%
-add_trace(d2022Ordenado, x = ~copyd2022$data_vacinacao, y = ~copyd2022$repetido, type = 'scatter', mode = 'lines', name = 'Name of Trace 2')
+fig <- plot_ly(d2021Ordenado,x=~d2021Ordenado$data_vacinacao,y=~d2021Ordenado$repetido,type = "scatter" , mode= 'lines+markes', name = '2021') %>% 
+layout(title = 'Vacinação ao longo dos anos de 2021 e 2022', plot_bgcolor = "#ffffff", xaxis = list(title = "Tempo"),yaxis = list (title = "Vacinas aplicadas")) %>%
+add_trace(d2022Ordenado, x = ~copyd2022$data_vacinacao, y = ~copyd2022$repetido, type = 'scatter', mode = 'lines', name = '2022')
 fig
 
 ####################################################################################################
+
+# GRÁFICO Nº2
+
+
+
+idoso <- vacinados %>% filter(vacinados$data_vacinacao > '2021-01-01' & vacinados$data_vacinacao < '2022-01-01')
+crianca <- vacinados %>% filter(vacinados$data_vacinacao > '2022-01-01' & vacinados$data_vacinacao < '2023-01-01')
+adulto <- vacinados %>% filter(vacinados$data_vacinacao > '2022-01-01' & vacinados$data_vacinacao < '2023-01-01')
+
+
+
+
+
+
+
+
+
+
+
 
 
 copyd2022 <- d2022Ordenado
