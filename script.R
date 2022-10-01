@@ -65,6 +65,3 @@ rm(vacinados2021,vacinados2022,a,b,vacinadosOrigial)
 
 
 
-
-
-

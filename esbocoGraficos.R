@@ -108,6 +108,8 @@ fig
 
 ############################################################################################################################################
 
+
+
 dados <- table(format(vacinados$data_vacinacao,"%b-%Y"),vacinados$descricao_dose)
 dados <- data.frame(dados) %>% spread(key = "Var2", value = "Freq")
 dados <- data.frame(dados, "Total"= rowSums(dados[, c("1", "2", "3","4")]))
