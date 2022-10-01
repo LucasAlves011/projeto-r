@@ -127,8 +127,22 @@ fig
 
 ##############################################################################################################################################
 
+da <- data.frame(table(toupper(str_sub(vacinados$cnes,1,4))))
 
+fig <- plot_ly()%>% add_pie(data = da, labels = ~da$Var1, values = ~da$Freq,
+                       name = "2021", domain = list(row = 0, column = 0),hole = 0.0) %>%
+  layout( title = "Distribuição de vacinas por DS" , xaxis= list(categoryorder = "array", categoryarray = da$Var1))
 
+fig
 
+d1 <- gsub(";",",","Boa Vista;Cabamga;Coelhos;Ilha do Leite;Ilha Joana Bezerra;Paissandu;Recife;São José;Santo Amaro;Santo Antônio;Soledade")
+d2 <- gsub(";",", ","Alto Santa Terezinha;Água Fria;Arruda;Beberibe;Bomba do Hemetério;Campo Grande;Cajueiro;Campina do Barreto;Dois Unidos;1Fundão;Hipódromo;Linha do Tiro;Ponto de Parada;Porto da Madeira;Peixinhos;Rosarinho;Torreão")
+d3 <- gsub(";",", ","Aflitos;Alto do Mandú;Apipucos;Casa Amarela;Casa Forte;Derby;Dois Irmãos;Espinheiro;Graças;Monteiro;Poço;Santana;Sitio dos Pintos;Tamarineira")
+d4 <- gsub(";",", ","Caxangá;Cidade Universitária;Varzea;Cordeiro;Engenho do Meio;Ilha do retiro;Iputinga;Madalena;Prado;Torre;Torrões;Várzea;Zumbi")
+d5 <- gsub(";",", ","Afogados;Areias;Barro;Bongi;Caçote;Coqueiral;Curado;Estância;Jardim São Paulo;Jiquiá;Mangueira;Mustardinha;Sancho;San Martin;Tejipió;Totó.")
+d6 <- gsub(";",", ","Boa Viagem;Brasília Teimosa;Imbiribeira;IPSEP;Pina.")
+d7 <- gsub(";",", ","Alto José Bonifácio;Alto José do Pinho;Brejo da Guabiraba;Córrego do Jenipapo;Guabiraba;Macaxeira;Mangabeira;Morro da Conceição;Nova Descoberta;Passarinho;Pau Ferro;Vasco da Gama.")
+d8 <- gsub(";",", ","Cohab;Ibura;Jordão.")
+pp <- data.frame( "DS " = c("DS 1","DS 2","DS 3","DS 4","DS 5","DS 6","DS 7","DS 8"),"Bairros"= c(d1,d2,d3,d4,d5,d6,d7,d8))
 
-
+ 
