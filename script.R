@@ -1,5 +1,6 @@
 
 
+
 vacinados2021 <- read_delim("vacinados2021.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
 vacinados2022 <- read_delim("vacinados2022.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
 
@@ -58,6 +59,7 @@ vacinados <- filter (vacinados,!is.na(cnes))
 #update da dataset Copia
 vacinadosCopia <- vacinados
 
+rm(vacinados2021,vacinados2022,a,b,vacinadosOrigial)
 
 
 

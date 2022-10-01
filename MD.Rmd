@@ -5,7 +5,6 @@ date: "21/09/2022"
 output: html_document
 ---
 
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 library(tidyverse)
@@ -16,7 +15,6 @@ library(dplyr)
 ```
 
 # Análise sobre a campanha de vacinação da Covid-19 na Região Metropolitana do Recife {.tabset}
-
 ## Introdução {.tabset} 
 ### O começo do **Caos**
 Em 31 de dezembro de 2019, a Organização Mundial da Saúde (OMS) foi alertada sobre vários casos de pneumonia na cidade de Wuhan, província de Hubei, na República Popular da China. Tratava-se de uma nova cepa (tipo) de coronavírus que não havia sido identificada antes em seres humanos. 
@@ -28,6 +26,18 @@ Em 30 de janeiro de 2020 foi declarada uma emergência de saúde global pela Org
 No dia 11 de Março de 2020 a OMS elevou o status de surto para **pandemia**.
 
 Em Pernambuco, a campanha de vacinação contra a Covid-19 foi iniciada em 18 de janeiro de 2021, mesmo dia em que a primeira remessa de doses dos imunizantes foi enviada ao Estado pelo Ministério da Saúde. A Secretaria Estadual de Saúde (SES-PE) tem organizado a vacinação de acordo com a disponibilidade de doses encaminhadas pelo Governo Federal, responsável pela aquisição e envio para os Estados. Com o inicio da campanha de vacinação foi selecionado grupos prioritários para atender os mais necessitados de primeira instância. Pensando nisso este projeto tem como o intuito  mostrar uma análise dessa campanha e relacionar esses dois anos de vacinação.É possível destacar questões como: Ao longo do ano de 2021 e 2022, como foi distribuída essa vacinação? Quais foram os grupos mais vacinados? Quantos postos foram utilizados e em quais regiões foram mais vacinadas? Quais doses a população de Recife tomou mais? 
+
+
+## Pacotes Requeridos
+
+```{r echo=T,}
+library(tidyverse)# pacote com vários pacotes
+library(readxl) #Ler arquivos
+library(dplyr) #Manipulação de tabelas
+library(DT) #Interatividade
+library(knitr) #Gerar tabelas
+library(plotly) #Plotar Gráficos
+```
 
 ## Preparação dos dados {.tabset}
 
@@ -199,14 +209,239 @@ Explicação de Cada Coluna
 
 
 
-## Pacotes Requeridos
 
-```{r echo=T,}
-library(tidyverse)
-library(readr)
-library(dplyr)
-library(DT)
-library(knitr)
-library(plotly)
+
+
+
+
+## Análise Exploratória dos dados {.tabset}
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+vacinados2021 <- read_delim("vacinados2021.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
+vacinados2022 <- read_delim("vacinados2022.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
+
+## Limpeza de Data Set
+vacinados <- rbind(vacinados2021,vacinados2022)
+
+vacinadosOrigial <- rbind(vacinados2021,vacinados2022)
+#install.packages("tidyverse")
+
+# Removendo Colunas
+vacinados$categoria = NULL
+vacinados$faixa_etaria = NULL
+vacinados$lote = NULL
+vacinados$sistema_origem = NULL
+
+# Função grupoEtario 
+grupo_Etario= function (idade ) {
+  
+  if(is.na(idade)){ return(NULL)}
+  else if(idade>=0 & idade<12){ return ("CRIANÇA")}
+  else if(idade>=13 & idade<=17){return ("ADOLESCENTE")}
+  else if(idade>=18 & idade<=39){return  ("JOVEM ADULTO")}
+  else if(idade>=40 & idade<=65){return ("MEIA IDADE")}
+  else{return ("IDOSO")}
+}
+
+# Criando coluna vazio de Grupo Etario
+vacinados["grupoEtario"] <-c("")
+
+# Preenchendo coluna GrupoEtario
+vacinados$grupoEtario <- sapply(vacinados$idade,grupo_Etario)
+
+
+## Removendo '1' e '2' da coluna $Sexo
+a <- filter(vacinados,vacinados$sexo != '1' & vacinados$sexo != '2')
+#Filtrando os is.na
+b <- filter(vacinados, is.na(sexo))
+#Concatenando de volta para 'a'
+a <- rbind(a,b)
+#Jogando vacinados para data set principal
+vacinados <- a
+
+#Limpando coluna racca_cor , Indigena estava duplicado
+vacinados$raca_cor <- replace(vacinados$raca_cor, vacinados$raca_cor == "ÍNDIGENA","INDÍGENA")
+ 
+#Transformando em Factor 
+vacinados$raca_cor <- factor(vacinados$raca_cor)
+vacinados$sexo <- factor(vacinados$sexo)
+vacinados$vacina_fabricante <- factor(vacinados$vacina_fabricante)
+
+
+#Removendo Na's
+vacinados <- filter (vacinados,!is.na(idade))
+vacinados <- filter (vacinados,!is.na(cnes))
+
+#update da dataset Copia
+vacinadosCopia <- vacinados
+
+rm(vacinados2021,vacinados2022,a,b,vacinadosOrigial)
 ```
+
+### Análise de Vacinados 2021&2022
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# GRÁFICO NUMERO 1
+
+vacinados2021 <- read_delim("vacinados2021.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
+vacinados2022 <- read_delim("vacinados2022.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
+vacinados <- rbind(vacinados2021,vacinados2022)
+rm(vacinados2021,vacinados2022)
+
+## separando por anos 
+v2021 <- vacinados %>% filter(vacinados$data_vacinacao > '2021-01-01' & vacinados$data_vacinacao < '2022-01-01')
+v2022 <- vacinados %>% filter(vacinados$data_vacinacao > '2022-01-01' & vacinados$data_vacinacao < '2023-01-01')
+
+# Fiz alguma coisa para contar as ocorrencias
+d2021 <- v2021 %>% group_by(data_vacinacao) %>% summarise(repetido = n()) %>% arrange(repetido) 
+d2022 <- v2022 %>% group_by(data_vacinacao) %>% summarise(repetido = n()) %>% arrange(repetido) 
+rm(v2021,v2022)
+#d <- recorte %>% group_by(data_vacinacao) %>% summarise(repetido = n()) %>% arrange(repetido) 
+
+## ordenei por data
+d2021Ordenado <-d2021[order(d2021$data_vacinacao),]
+copyd2022 <-d2022[order(d2022$data_vacinacao),]
+
+#d2022Ordenado <-d2022[order(d2022$data_vacinacao),]
+rm(d2021,d2022)
+
+## GRÁFICO DE PESSOAS VACINADAS EM FUNÇÃO DO TEMPO NO ANO DE 2021 
+fig <- plot_ly(d2021Ordenado,x=~d2021Ordenado$data_vacinacao,y=~d2021Ordenado$repetido,type = "scatter" , mode= 'lines+markes', name = '2021') %>% 
+layout(title = 'Vacinação ao longo dos anos de 2021 e 2022', plot_bgcolor = "#ffffff", xaxis = list(title = "Tempo"),yaxis = list (title = "Vacinas aplicadas")) %>%
+add_trace(copyd2022, x = ~copyd2022$data_vacinacao, y = ~copyd2022$repetido, type = 'scatter', mode = 'lines', name = '2022')
+fig
+
+####################################################################################################
+```
+### Vacinação Por grupo Etário 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+# GRÁFICO Nº2 
+vacinados$categoria = NULL
+vacinados$faixa_etaria = NULL
+vacinados$lote = NULL
+vacinados$sistema_origem = NULL
+
+# Função grupoEtario 
+grupo_Etario= function (idade ) {
+  
+  if(is.na(idade)){ return(NULL)}
+  else if(idade>=0 & idade<12){ return ("CRIANÇA")}
+  else if(idade>=13 & idade<=17){return ("ADOLESCENTE")}
+  else if(idade>=18 & idade<=39){return  ("JOVEM ADULTO")}
+  else if(idade>=40 & idade<=65){return ("MEIA IDADE")}
+  else{return ("IDOSO")}
+}
+
+# Criando coluna vazio de Grupo Etario
+vacinados["grupoEtario"] <-c("")
+
+# Preenchendo coluna GrupoEtario
+vacinados$grupoEtario <- sapply(vacinados$idade,grupo_Etario)
+
+
+## Removendo '1' e '2' da coluna $Sexo
+a <- filter(vacinados,vacinados$sexo != '1' & vacinados$sexo != '2')
+#Filtrando os is.na
+b <- filter(vacinados, is.na(sexo))
+#Concatenando de volta para 'a'
+a <- rbind(a,b)
+#Jogando vacinados para data set principal
+vacinados <- a
+
+#Limpando coluna racca_cor , Indigena estava duplicado
+vacinados$raca_cor <- replace(vacinados$raca_cor, vacinados$raca_cor == "ÍNDIGENA","INDÍGENA")
+ 
+#Transformando em Factor 
+vacinados$raca_cor <- factor(vacinados$raca_cor)
+vacinados$sexo <- factor(vacinados$sexo)
+vacinados$vacina_fabricante <- factor(vacinados$vacina_fabricante)
+
+
+#Removendo Na's
+vacinados <- filter (vacinados,!is.na(idade))
+vacinados <- filter (vacinados,!is.na(cnes))
+
+#update da dataset Copia
+vacinadosCopia <- vacinados
+
+rm(vacinados2021,vacinados2022,a,b,vacinadosOrigial)
+"AJEITAR POR ORDEM ETARIA "
+
+criança2021 <- vacinados %>% filter(vacinados$grupoEtario == "CRIANÇA" & vacinados$data_vacinacao > '2021-01-01' & vacinados$data_vacinacao < '2022-01-01') %>% group_by(grupoEtario) %>% summarise(repetido = n()) %>% arrange(repetido)
+adolescente2021 <- vacinados %>% filter(vacinados$grupoEtario == "ADOLESCENTE" & vacinados$data_vacinacao > '2021-01-01' & vacinados$data_vacinacao < '2022-01-01')  %>% group_by(grupoEtario) %>% summarise(repetido = n()) %>% arrange(repetido)
+jovemAdulto2021 <- vacinados %>% filter(vacinados$grupoEtario == "JOVEM ADULTO" & vacinados$data_vacinacao > '2021-01-01' & vacinados$data_vacinacao < '2022-01-01')  %>% group_by(grupoEtario) %>% summarise(repetido = n()) %>% arrange(repetido)
+meiaIdade2021 <- vacinados %>% filter(vacinados$grupoEtario == "MEIA IDADE" & vacinados$data_vacinacao > '2021-01-01' & vacinados$data_vacinacao < '2022-01-01') %>% group_by(grupoEtario) %>% summarise(repetido = n()) %>% arrange(repetido)
+idoso2021 <- vacinados %>% filter(vacinados$grupoEtario == "IDOSO" & vacinados$data_vacinacao > '2021-01-01' & vacinados$data_vacinacao < '2022-01-01') %>% group_by(grupoEtario) %>% summarise(repetido = n()) %>% arrange(repetido)
+
+criança2022 <- vacinados %>% filter(vacinados$grupoEtario == "CRIANÇA" & vacinados$data_vacinacao > '2022-01-01' & vacinados$data_vacinacao < '2023-01-01') %>% group_by(grupoEtario) %>% summarise(repetido = n()) %>% arrange(repetido)
+adolescente2022 <- vacinados %>% filter(vacinados$grupoEtario == "ADOLESCENTE" & vacinados$data_vacinacao > '2022-01-01' & vacinados$data_vacinacao < '2023-01-01')  %>% group_by(grupoEtario) %>% summarise(repetido = n()) %>% arrange(repetido)
+jovemAdulto2022 <- vacinados %>% filter(vacinados$grupoEtario == "JOVEM ADULTO" & vacinados$data_vacinacao > '2022-01-01' & vacinados$data_vacinacao < '2023-01-01')  %>% group_by(grupoEtario) %>% summarise(repetido = n()) %>% arrange(repetido)
+meiaIdade2022 <- vacinados %>% filter(vacinados$grupoEtario == "MEIA IDADE" & vacinados$data_vacinacao > '2022-01-01' & vacinados$data_vacinacao < '2023-01-01') %>% group_by(grupoEtario) %>% summarise(repetido = n()) %>% arrange(repetido)
+idoso2022 <- vacinados %>% filter(vacinados$grupoEtario == "IDOSO" & vacinados$data_vacinacao > '2022-01-01' & vacinados$data_vacinacao < '2023-01-01') %>% group_by(grupoEtario) %>% summarise(repetido = n()) %>% arrange(repetido)
+
+
+Grupos <- c("CRIANÇA", "ADOLESCENTE", "JOVEM ADULTO", "MEIA IDADE", "IDOSO")
+
+d21 <- rbind(criança2021,adolescente2021,jovemAdulto2021,meiaIdade2021,idoso2021)
+d22 <- rbind(criança2022,adolescente2022,jovemAdulto2022,meiaIdade2022,idoso2022)
+
+data <- data.frame(Grupos, d21, d22)
+
+fig <- plot_ly(data, x = ~Grupos, y = ~d21$repetido, type = 'bar', name = '2021') %>% 
+  add_trace(y = ~d22$repetido, name = '2022')
+
+fig <- fig %>% layout(title = 'Vacinação por grupos', plot_bgcolor = "#ffffff", yaxis = list(title = 'Quantidade de Vacinados'), barmode = 'group')
+
+fig
+
+```
+
+### Grupo prioritários
+```{r}
+v2021 <- vacinados %>% filter(vacinados$data_vacinacao > '2021-01-01' & vacinados$data_vacinacao < '2022-01-01')
+v2022 <- vacinados %>% filter(vacinados$data_vacinacao > '2022-01-01' & vacinados$data_vacinacao < '2023-01-01')
+
+a <- v2021
+a$grupo <- replace(v2021$grupo, v2021$grupo == "TRABALHADORES DE TRANSPORTE AÉREO","TRABALHADORES DE TRANSPORTE") 
+a$grupo <- replace(a$grupo, a$grupo == "TRABALHADORES DE TRANSPORTE COLETIVO RODOVIÁRIO","TRABALHADORES DE TRANSPORTE") 
+a$grupo <- replace(a$grupo, a$grupo == "TRABALHADORES DE TRANSPORTE METROVIÁRIO E FERROVIÁRIO","TRABALHADORES DE TRANSPORTE") 
+a$grupo <- replace(a$grupo, a$grupo == "CAMINHONEIROS","TRABALHADORES DE TRANSPORTE") 
+a$grupo <- replace(a$grupo, a$grupo == "TRABALHADORES DE TRANSPORTE AQUAVIÁRIO","TRABALHADORES DE TRANSPORTE") 
+a$grupo <- replace(a$grupo, a$grupo == "GESTANTES E PUÉRPERAS NÃO RESIDENTES EM RECIFE","GESTANTES E PUÉRPERAS") 
+
+a1 <- v2022
+a1$grupo <- replace(v2022$grupo, v2022$grupo == "TRABALHADORES DE TRANSPORTE AÉREO","TRABALHADORES DE TRANSPORTE") 
+a1$grupo <- replace(a1$grupo, a1$grupo == "TRABALHADORES DE TRANSPORTE COLETIVO RODOVIÁRIO","TRABALHADORES DE TRANSPORTE") 
+a1$grupo <- replace(a1$grupo, a1$grupo == "TRABALHADORES DE TRANSPORTE METROVIÁRIO E FERROVIÁRIO","TRABALHADORES DE TRANSPORTE") 
+a1$grupo <- replace(a1$grupo, a1$grupo == "CAMINHONEIROS","TRABALHADORES DE TRANSPORTE") 
+a1$grupo <- replace(a1$grupo, a1$grupo == "TRABALHADORES DE TRANSPORTE AQUAVIÁRIO","TRABALHADORES DE TRANSPORTE") 
+a1$grupo <- replace(a1$grupo, a1$grupo == "GESTANTES E PUÉRPERAS NÃO RESIDENTES EM RECIFE","GESTANTES E PUÉRPERAS") 
+
+b <- a %>% group_by(grupo) %>% summarise(repetido = n()) %>% arrange(repetido) 
+b1 <- a1 %>% group_by(grupo) %>% summarise(repetido = n()) %>% arrange(repetido) 
+
+b[20,] <- NA # PUBLICO GERAL
+b[1,] <- NA # CRIANÇA 6 A 11
+b[17,] <- NA # PUBLICO GERAL -18 ANOS
+
+b1[22,] <- NA # PUBLICO GERAL
+b1[19,] <- NA # PUBLICO GERAL -18
+b1[14,] <- NA #CRIANÇA 3 A 4
+b1[20,] <- NA # CRIANÇA 5 A 11
+
+fig <- plot_ly()
+fig <- fig %>% add_pie(data = b, labels = ~b$grupo, values = ~b$repetido,
+                       name = "2021", domain = list(row = 0, column = 0),hole = 0.6)
+fig <- fig %>% add_pie(data = b1, labels = ~b1$grupo, values = ~b1$repetido,
+                       name = "2022", domain = list(row = 0, column = 1),hole = 0.6)
+fig <- fig %>% layout(title = "Grupos prioritários", showlegend = F, 
+                      grid=list(rows=2, columns=2),
+                      xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = F),
+                      yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = F) )
+fig
+
+
+```
+
+
 
