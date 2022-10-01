@@ -54,9 +54,10 @@ d22 <- rbind(criança2022,adolescente2022,jovemAdulto2022,meiaIdade2022,idoso202
 data <- data.frame(Grupos, d21, d22)
 
 fig <- plot_ly(data, x = ~Grupos, y = ~d21$repetido, type = 'bar', name = '2021') %>% 
-  add_trace(y = ~d22$repetido, name = '2022')
-
-fig <- fig %>% layout(title = 'Vacinação por grupos', plot_bgcolor = "#ffffff", yaxis = list(title = 'Quantidade de Vacinados'), barmode = 'group')
+  add_trace(y = ~d22$repetido, name = '2022') %>%
+layout(title = 'Vacinação por grupos', plot_bgcolor = "#ffffff", xaxis = list(categoryorder = "array",
+                                            categoryarray = Grupos)
+                      ,yaxis = list(title = 'Quantidade de Vacinados'), barmode = 'group')
 
 fig
 
@@ -105,14 +106,24 @@ fig <- fig %>% layout(title = "Grupos prioritários", showlegend = F,
 fig
 
 
+############################################################################################################################################
 
+dados <- table(format(vacinados$data_vacinacao,"%b-%Y"),vacinados$descricao_dose)
+dados <- data.frame(dados) %>% spread(key = "Var2", value = "Freq")
+dados <- data.frame(dados, "Total"= rowSums(dados[, c("1", "2", "3","4")]))
+dados$Var1 <- dmy(paste("01", b1$Var1))
+dados<-dados[order(dados$Var1),]
+dados$Var1 <- format(dados$Var1, format="%b/%Y")
 
+fig <- plot_ly(dados, x = ~dados$Var1, y = ~dados$X1, type = 'bar', name = 'Primeira dose') %>% 
+  add_trace(y = ~dados$X2, name = 'Segunda dose') %>% 
+  add_trace(y = ~dados$X3, name = 'Terceira dose') %>% 
+  add_trace(y = ~dados$X4, name = 'Quarta dose')  %>% 
+  layout(title = 'Relação de doses pelo tempo',xaxis = list( title = 'Meses',categoryorder = "array", categoryarray = dados$Var1) ) %>%
+  layout(yaxis = list(title = 'Count'), barmode = 'stack')
+fig
 
-
-
-
-
-
+##############################################################################################################################################
 
 
 
