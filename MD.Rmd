@@ -312,6 +312,7 @@ fig
 
 ####################################################################################################
 ```
+Os Resultados obtidos atráves deste gráfico demonstra que de em 2021, manteve uma média maior que 2022, apesar de haver dois picos de grande massa de vacinação no primeiro quarto de 2022, porém a média de pessoas vacinados em 2021 , ultrapassa a de 2022 em duas vezes, resultado desta estatistica se deve ao fato de ser o começo da campanha de vacinação, onde foi organizado grupos prioritários e selecionados para serem vacinados. 
 ### Vacinação Por grupo Etário 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 
@@ -396,8 +397,10 @@ fig
 
 ```
 
+Podemos observar que como o ano de 2021, foi onde obtivemos uma média de vacinação maior, é compreensivel ele ter essa diferença em divisão de grupos Etários, porém este filtro , nos traz novas informações, que apesar de 2022 demonstrar ter vacinado menos em relação ao ano anterior, o número de crianças(pessoas de 0 à 12 anos de idade) mostra-se exorbitantemente maior em 2022. Questão que nos faz levantar do motivo deste insight, se por motivo de ser o grupo menos prioritário, ou alguma outra razão levou à esse resultado.
+
 ### Grupo prioritários
-```{r}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 v2021 <- vacinados %>% filter(vacinados$data_vacinacao > '2021-01-01' & vacinados$data_vacinacao < '2022-01-01')
 v2022 <- vacinados %>% filter(vacinados$data_vacinacao > '2022-01-01' & vacinados$data_vacinacao < '2023-01-01')
 
@@ -440,8 +443,11 @@ fig <- fig %>% layout(title = "Grupos prioritários", showlegend = F,
                       yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = F) )
 fig
 
-
 ```
+
+Antes de passar para análise, é preciso informar que os dados de grupo prioritários: Publico Geral e Criança , foram retirados, já que o foco é o grupos de outras áreas. 
+
+Podemos notar que a diferença da porcentagem dos grupos prioritários não é tão notável, contrariamente ao número total de vacinados entre esses anos.
 
 
 
