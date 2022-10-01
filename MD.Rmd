@@ -12,10 +12,10 @@ output:
 
 library(tidyverse)
 library(DT)
-library(knitr)
+#library(knitr)
 library(plotly)
 library(lubridate)
-library(dplyr)
+#library(dplyr)
 ```
 
 # Análise sobre a campanha de vacinação da Covid-19 na Região Metropolitana do Recife {.tabset .tabset-pills .tabset-fade}
@@ -53,10 +53,10 @@ library(lubridate) #Trabalhar com DATE
 
 ### Origem dos dados
 <br>
-<br>
+
 Os dados utilizados foram obtidos do **portal de dados abertos da Prefeitura de Recife**. Este portal disponibiliza, de forma pública, dados que são gerados por secretarias e órgãos da gestão municipal. Além de dados referentes a área da saúde, o portal conta informações sobre diversas outras áreas referentes a cidade do 
 Recife como a segurança pública, mobilidade urbana, cultura, finanças e diversas outras.
-
+<br>
 
 
 [![](http://dados.recife.pe.gov.br/base/images/logo-dados-recife.png)](http://dados.recife.pe.gov.br/)
@@ -64,7 +64,7 @@ Recife como a segurança pública, mobilidade urbana, cultura, finanças e diver
 
 ### Explicação dos dados
 <br>
-  Os dados originais promovem o perfil das pessoas que foram vacinas desde o começo da campanha de vacinação de 2021 e 2022, vinha com a inteção de explorar a estatistica das pessoas que tomaram a vacina, os dados originais somado anos de 2021 e 2022 , tornasse em torno de 870Mb, contava com 14 colunas e um pouco mais de 4 milhões de linhas. Onde as colunas são nomeadas, da seguinte forma: **id, faixa_etaria, idade, sexo, raca_cor, municipio, grupo, categoria, lote, vacina_fabricante, descricao_dose, cnes, sistema_origem, data_vacinacao**.
+  Os dados originais promovem o perfil das pessoas que foram vacinas desde o começo da campanha de vacinação de 2021 e 2022, vinha com a intenção de explorar a estatística das pessoas que tomaram a vacina, os dados originais somados dos anos de 2021 e 2022 tornassem em torno de 870Mb, contava com 14 colunas e um pouco mais de 4 milhões de linhas. Onde as colunas são nomeadas da seguinte forma: **id, faixa_etaria, idade, sexo, raca_cor, municipio, grupo, categoria, lote, vacina_fabricante, descricao_dose, cnes, sistema_origem, data_vacinacao**.
   <br>
   <br>
 ```{r juntar_datasets, echo=TRUE, message=FALSE, warning=FALSE}
@@ -81,11 +81,11 @@ rm(vacinados2021,vacinados2022)
 ### Limpeza de colunas
 
 <br>
-Para realizar a limpeza desse enorme arquivo, retiramos as colunas , **categoria, faixa_etaria, lote e sistema_origem**, cujo consideramos desnecessária para análise exploratória.
+Para realizar a limpeza desse enorme arquivo, retiramos as colunas , **categoria, faixa_etaria, lote e sistema_origem**, pois consideramos desnecessárias para análise exploratória.
 <br>
 <br>
 
-```{r remover_colunas, echo=FALSE}
+```{r remover_colunas, echo=TRUE}
 ## Tabela sem as colunas acima , para exemplificar
 vacinados$categoria = NULL
 vacinados$faixa_etaria = NULL
@@ -96,11 +96,18 @@ datatable(vacinados[1:2,])
 
 ### Criação de Coluna e Factor
 <br>
-Foi criada a coluna **grupoEtario** para separar as pessoas em factor, poderiamos ter usado a antiga coluna **faixa_etaria** mas ela era muito diversa e queriamos minimizar as categorias para não expandir desnecessariamente.
+Foi criada a coluna **grupoEtario** para separar as pessoas em factors, poderíamos ter usado a antiga coluna **faixa_etaria** mas ela era muito diluída e queríamos minimizar as categorias para não expandir desnecessariamente.
 <br>
-<br>
+Decidimos definar nossos grupos etários pela seguinte regra:
 
-```{r echo=FALSE, warning=FALSE}
+- Criança      -> 0 a 12 anos.
+- Adolescente  -> 13 a 17 anos.
+- Jovem Adulto -> 18 a 39 anos.
+- Meia Idade   -> 40 a 65 anos.
+- Idoso        -> 66 anos acima.
+
+
+```{r echo=T, warning=FALSE}
 
 ## Coluna grupo etario
 
@@ -123,7 +130,7 @@ vacinados$grupoEtario <- sapply(vacinados$idade,grupo_Etario)
 #vacinados2021$grupoEtario <- factor(vacinados2021$grupoEtario)
 
 #Printando datatable
-datatable(vacinados[1:10,c(1,10)])
+datatable(vacinados[sample(nrow(vacinados), 10), c(1,10)])
 
 ```
 
@@ -212,13 +219,13 @@ datatable(vacinados[10:15,])
 
 
 ```
-Explicação de Cada Coluna
+Explicação de cada coluna:
 
-- idade -> Não usamos propriamente a idade, mas foi referenciada para criar a **Coluna grupoEtario**
+- idade -> Não usamos propriamente a idade, mas foi referenciada para criar a coluna **grupoEtario**
 
-- descricao_dose -> Numero que determina a dose que foi aplicada ao usuario, que vai de 1 à 3.
+- descricao_dose -> Número que determina a dose que foi aplicada ao usuário, que vai de 1 à 3.
 
-- cnes-> Sigla significa "Cadastro Nacional de Estabelecimentos de Saúde", retorna o local de vacinação.
+- cnes-> Sigla significa "Cadastro Nacional de Estabelecimentos de Saúde", contém a matrícula do local de vacinação junto com seu distrito sanitário. 
 
 - grupoEtario -> Coluna criada para definir o grupo em que se encaixa o perfil da pessoa(Criança,Adolescente,Jovem Adulto,Meia-Idade e Idoso)
 
@@ -297,11 +304,11 @@ rm(vacinados2021,vacinados2022,a,b,vacinadosOrigial)
 
 ### Análise de Vacinados 2021&2022
 
-Os Resultados obtidos atráves deste gráfico demonstra que de em 2021, manteve uma média maior que 2022, apesar de haver dois picos de grande massa de vacinação no primeiro quarto de 2022, porém a média de pessoas vacinados em 2021 , ultrapassa a de 2022 em duas vezes, resultado desta estatistica se deve ao fato de ser o começo da campanha de vacinação, onde foi organizado grupos prioritários e selecionados para serem vacinados.
+Os resultados obtidos atráves deste gráfico demonstram que em 2021, foi mantida uma média maior que 2022, apesar de haver dois picos de grande massa de vacinação no primeiro quarto de 2022, porém a média de pessoas vacinados em 2021 ultrapassa a de 2022 em duas vezes, resultado desta estatística se deve ao fato de ser o começo da campanha de vacinação onde foram organizados grupos prioritários que foram selecionados para serem vacinados com antecedência.
 <br>
 <br>
 <br>
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=T, message=FALSE, warning=FALSE}
 # GRÁFICO NUMERO 1
 
 vacinados2021 <- read_delim("vacinados2021.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
@@ -337,12 +344,12 @@ fig
 
 ### Vacinação Por grupo Etário 
 
-Podemos observar que como o ano de 2021, foi onde obtivemos uma média de vacinação maior, é compreensivel ele ter essa diferença em divisão de grupos Etários, porém este filtro , nos traz novas informações, que apesar de 2022 demonstrar ter vacinado menos em relação ao ano anterior, o número de crianças(pessoas de 0 à 12 anos de idade) mostra-se exorbitantemente maior em 2022. Questão que nos faz levantar do motivo deste insight, se por motivo de ser o grupo menos prioritário, ou alguma outra razão levou à esse resultado.
+Podemos observar que como o ano de 2021, foi onde obtivemos uma média de vacinação maior, é compreensivel ele ter essa diferença em divisão de grupos Etários, porém este filtro nos traz novas informações, que apesar de 2022 demonstrar ter vacinado menos em relação ao ano anterior, o número de crianças(pessoas de 0 à 12 anos de idade) mostra-se exorbitantemente maior em 2022. Questão que nos faz levantar do motivo deste insight, se por motivo de ser o grupo menos prioritário, ou alguma outra razão levou à esse resultado.
 <br>
 <br>
 <br>
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=T, message=FALSE, warning=FALSE}
 
 # GRÁFICO Nº2 
 vacinados$categoria = NULL
@@ -423,11 +430,12 @@ fig
 
 ### Grupo prioritários
 
-Antes de passar para análise, é preciso informar que os dados de grupo prioritários: Publico Geral e Criança , foram retirados, já que o foco é o grupos de outras áreas. Podemos notar que a diferença de porcentagem dos grupos prioritários não são tão notaveis, contrariamente ao número total de vacinados entre esses anos. Demonstrando e se questionando se a prioridade que foram dadas a estes grupos, balanceia os não prioritários.
+Antes de passar para análise, é preciso informar que os dados do grupos prioritários: Publico Geral e Criança foram retirados, já que o foco são os grupos de outras categorias. 
+Podemos notar que a diferença de porcentagem dos grupos prioritários não são tão notáveis, contrariamente ao número total de vacinados entre esses anos. Demonstrando e se questionando se a prioridade que foram dadas a estes grupos, balanceia os não prioritários.
 <br>
 <br>
 <br>
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=T, message=FALSE, warning=FALSE}
 v2021 <- vacinados %>% filter(vacinados$data_vacinacao > '2021-01-01' & vacinados$data_vacinacao < '2022-01-01')
 v2022 <- vacinados %>% filter(vacinados$data_vacinacao > '2022-01-01' & vacinados$data_vacinacao < '2023-01-01')
 
@@ -472,18 +480,18 @@ fig
 
 ```
 
-### Ploty de doses
+### Plotagem de doses
 
-Diferentemente do que é visto nas primeiras doses, é visto uma diminuição exorbitante no processo de vacinação da 4ºdose, números esses que apenas tendiam a diminuir, devido ao fato de não haver mais o "medo" que a COVID troxe, contudo a implementação das doses são se suma importância, saúde deve ser tratada como prioridade.Fato da 4ºdose ter sido minima, encontrasse 2 fatores que são válidos citar. 
+Diferentemente do que é visto nas primeiras doses, é visto uma diminuição exorbitante no processo de vacinação da 4º dose, números esses que apenas tendem a diminuir, devido ao fato de não haver mais o *medo* que a COVID trouxe, contudo a implementação das doses são de suma importância e a **saúde deve ser tratada como prioridade**. Fato da 4º dose ter sido mínima, encontra-se 2 fatores que são válidos citar: 
 
-- Fato Nº1 -  Ela ainda estar em vigor.
-- Fato Nº2 - Descaso da população em procura da dose.
+- Fato Nº 1 -  A quarta dose ainda está em vigor.
+- Fato Nº 2 -  Descaso da população em procura da aplicação da quarta dose.
 
 <br>
 <br>
 <br>
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r echo=T, message=FALSE, warning=FALSE}
 dados <- table(format(vacinados$data_vacinacao,"%b-%Y"),vacinados$descricao_dose)
 dados <- data.frame(dados) %>% spread(key = "Var2", value = "Freq")
 dados <- data.frame(dados, "Total"= rowSums(dados[, c("1", "2", "3","4")]))
@@ -503,6 +511,11 @@ fig
 
 ### Vacinas por Distrito Sanitário
 
+Ao examinarmos o gráfico, observamos a divisão das vacinações por DS (Distritro sanitário), e em uma tabela abaixo definimos todos os **Distrito Saniário** com o seus rescpectivos bairros. 
+Podemos encontrar nestes distristos, prevalêcia da maior porcentagem no DS 6, que engloba os bairros de *Boa Viagem, Brasília Teimosa,Imbiribeira,IPSEP e Pina*. Com essas estatisicas, orgãos públicos tem a capacidade de centralizar, optimizar os locais que demandam mais vacinações, trazendo um aperfeiçoamento e agilidade para campanha de vacinação não só da prórpria COVID mas também de possíveis futuras epidemias.
+<br>
+<br>
+
 ```{r}
 da <- data.frame(table(toupper(str_sub(vacinados$cnes,1,4))))
 
@@ -512,6 +525,12 @@ fig <- plot_ly()%>% add_pie(data = da, labels = ~da$Var1, values = ~da$Freq,
 
 fig
 
+```
+
+
+
+
+```{r echo=FALSE}
 d1 <- gsub(";",",","Boa Vista;Cabamga;Coelhos;Ilha do Leite;Ilha Joana Bezerra;Paissandu;Recife;São José;Santo Amaro;Santo Antônio;Soledade")
 d2 <- gsub(";",", ","Alto Santa Terezinha;Água Fria;Arruda;Beberibe;Bomba do Hemetério;Campo Grande;Cajueiro;Campina do Barreto;Dois Unidos;Fundão;Hipódromo;Linha do Tiro;Ponto de Parada;Porto da Madeira;Peixinhos;Rosarinho;Torreão")
 d3 <- gsub(";",", ","Aflitos;Alto do Mandú;Apipucos;Casa Amarela;Casa Forte;Derby;Dois Irmãos;Espinheiro;Graças;Monteiro;Poço;Santana;Sitio dos Pintos;Tamarineira")
@@ -524,8 +543,8 @@ pp <- data.frame( "DS " = c("DS 1","DS 2","DS 3","DS 4","DS 5","DS 6","DS 7","DS
 
 datatable(pp)
 
-
 ```
+
 
 
 ## Conclusão {.tabset .tabset-pills .tabset-fade}
@@ -534,7 +553,7 @@ datatable(pp)
 
   **Assim, pode-se observar que por meio desta Análise Exploratória do conjunto de dados referente à campanha de vacinação da COVID-19 na região metropolitana no anos de 2021 e 2022, podemos obter dados interessantes e válidos para extrair informações relevantes para possíveis melhorias dos serviços de campanha e divulgação para alertar a população dos riscos e necessidade de receber as vacinas necessárias, não só para COVID, mas para futuras campanhas de vacinação de caráter emergencial.**
 
-**Foram selecionadas apenas informações importantes para explorar, dados de vacinações, doses e grupos, todos foram abordados visando demonstrar estatistica referente à seus dados.**
+**Foram selecionadas apenas informações importantes para explorar, dados de vacinações, doses e grupos, todos foram abordados visando demonstrar estatística referente à seus dados.**
 
 **Em conclusão, esta mesma abordagem pode ser replicada com outros dados, visando trazer esses tipos de informações, gerando e motivando melhorias dos serviços, impulsionando não só os orgãos públicos, mas também a população, trazendo um aperfeiçoamento nas futuras campanhas.**
 

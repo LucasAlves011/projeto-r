@@ -146,3 +146,5 @@ d8 <- gsub(";",", ","Cohab;Ibura;Jordão.")
 pp <- data.frame( "DS " = c("DS 1","DS 2","DS 3","DS 4","DS 5","DS 6","DS 7","DS 8"),"Bairros"= c(d1,d2,d3,d4,d5,d6,d7,d8))
 
  
+
+vacinados[sample(nrow(vacinados), 10), ]
