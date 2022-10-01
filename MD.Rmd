@@ -5,7 +5,7 @@ date: "21/09/2022"
 output: html_document
 ---
 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
+```{r  imports_fantasmas, echo=FALSE, message=FALSE, warning=FALSE}
 
 library(tidyverse)
 library(DT)
@@ -30,7 +30,7 @@ Em Pernambuco, a campanha de vacinação contra a Covid-19 foi iniciada em 18 de
 
 ## Pacotes Requeridos
 
-```{r echo=T,}
+```{r imports_exibicao, echo=T}
 library(tidyverse)# pacote com vários pacotes
 library(readxl) #Ler arquivos
 library(dplyr) #Manipulação de tabelas
@@ -54,7 +54,7 @@ Recife como a segurança pública, mobilidade urbana, cultura, finanças e diver
 ### Explicação dos dados    
   Os dados originais promovem o perfil das pessoas que foram vacinas desde o começo da campanha de vacinação de 2021 e 2022, vinha com a inteção de explorar a estatistica das pessoas que tomaram a vacina, os dados originais somado anos de 2021 e 2022 , tornasse em torno de 870Mb, contava com 14 colunas e um pouco mais de 4 milhões de linhas. Onde as colunas são nomeadas, da seguinte forma: **id, faixa_etaria, idade, sexo, raca_cor, municipio, grupo, categoria, lote, vacina_fabricante, descricao_dose, cnes, sistema_origem, data_vacinacao**.
   
-```{r echo=TRUE, message=FALSE, warning=FALSE}
+```{r juntar_datasets, echo=TRUE, message=FALSE, warning=FALSE}
 
 #Fazendo o 'rbind' dos dois dataSet de vacinação 2021 e 2022
 vacinados2021 <- read_delim("vacinados2021.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
@@ -70,7 +70,7 @@ rm(vacinados2021,vacinados2022)
 
 Para realizar a limpeza desse enorme arquivo, retiramos as colunas , **categoria, faixa_etaria, lote e sistema_origem**, cujo consideramos desnecessária para análise exploratória.
 
-```{r echo=FALSE}
+```{r remover_colunas, echo=FALSE}
 ## Tabela sem as colunas acima , para exemplificar
 vacinados$categoria = NULL
 vacinados$faixa_etaria = NULL
@@ -111,7 +111,7 @@ datatable(vacinados[1:10,c(1,10)])
 ```
 
 Transformamos as colunas **Sexo, raca_cor e vacina_fabricante** em factors e fizemos algumas limpezas para garantir a coerência dos dados.
-```{r results='hide'}
+```{r transformar_factor, results='hide'}
 vacinados$raca_cor <- factor(vacinados$raca_cor)
 vacinados$sexo <- factor(vacinados$sexo)
 vacinados$vacina_fabricante <- factor(vacinados$vacina_fabricante)
@@ -389,10 +389,7 @@ d22 <- rbind(criança2022,adolescente2022,jovemAdulto2022,meiaIdade2022,idoso202
 data <- data.frame(Grupos, d21, d22)
 
 fig <- plot_ly(data, x = ~Grupos, y = ~d21$repetido, type = 'bar', name = '2021') %>% 
-  add_trace(y = ~d22$repetido, name = '2022')
-
-fig <- fig %>% layout(title = 'Vacinação por grupos', plot_bgcolor = "#ffffff", yaxis = list(title = 'Quantidade de Vacinados'), barmode = 'group')
-
+  add_trace(y = ~d22$repetido, name = '2022') %>% layout(title = 'Vacinação por grupos', plot_bgcolor = "#ffffff", xaxis = list(categoryorder = "array", categoryarray = Grupos) ,yaxis = list(title = 'Quantidade de Vacinados'), barmode = 'group')
 fig
 
 ```
